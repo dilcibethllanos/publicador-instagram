@@ -88,7 +88,14 @@ def leer_config():
 
     if not carpetas:
         # Sin subcarpetas: se usan todos los videos de la carpeta "videos"
-        carpetas = {".": pub.get("caption", "").strip()}
+        # Si existe caption.txt se usa ese texto (admite varias líneas y hashtags sin problema);
+        # si no, se usa el "caption" de configuracion.ini
+        archivo_caption = BASE / "caption.txt"
+        if archivo_caption.exists() and archivo_caption.read_text(encoding="utf-8-sig").strip():
+            texto = archivo_caption.read_text(encoding="utf-8-sig").strip()
+        else:
+            texto = pub.get("caption", "").strip()
+        carpetas = {".": texto}
     return horarios, orden, alternar, carpetas
 
 

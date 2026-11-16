@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Próximo Reel</title>
+<meta name="theme-color" content="#26103f">
+<meta name="description" content="Cuenta regresiva, portada y caption del próximo Reel que se publica en Instagram.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lila: #f3eeff;
+    --ciruela: #26103f;
+    --ciruela-suave: #5d4a78;
+    --violeta: #6a3de8;
+    --magenta: #d62976;
+    --naranja: #fa7e1e;
+    --ambar: #feda75;
+    --blanco: #ffffff;
+    --titulo: "Bricolage Grotesque", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    --texto: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--lila);
+    color: var(--ciruela);
+    font-family: var(--texto);
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: max(28px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+             max(36px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  }
+
+  main {
+    max-width: 1020px;
+    margin: 0 auto;
+  }
+
+  .escena {
+    display: grid;
+    gap: 40px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  /* ---------- Marco de película con la portada ---------- */
+  .proyector {
+    position: relative;
+    width: min(100%, 360px);
+  }
+  /* la luz del proyector detrás del fotograma: el único adorno de la página */
+  .proyector::before {
+    content: "";
+    position: absolute;
+    inset: -14% -4%;
+    background: radial-gradient(closest-side, rgba(250, 126, 30, .42), rgba(214, 41, 118, .26) 48%, rgba(106, 61, 232, 0) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .marco {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 16px 40px;
+    background: var(--ciruela);
+    border-radius: 10px;
+    box-shadow: 0 28px 60px -24px rgba(38, 16, 63, .6);
+    animation: entrada .7s cubic-bezier(.2, .7, .2, 1) both;
+  }
+
+  .tira {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='30'%3E%3Crect width='14' height='18' rx='3.5' fill='%23f3eeff'/%3E%3C/svg%3E");
+    background-repeat: repeat-y;
+    background-position: center 6px;
+    background-size: 14px 30px;
+  }
+  .tira.izq { left: 0; }
+  .tira.der { right: 0; }
+
+  .fotograma {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: #3b2360;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .fotograma img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .sin-portada {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, #4a2d7a, #26103f);
+  }
+  .sin-portada svg { width: 34%; opacity: .85; }
+  .fotograma.con-imagen .sin-portada { display: none; }
+
+  /* ---------- Datos ---------- */
+  .datos {
+    width: min(100%, 460px);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 18px;
+    font-family: var(--titulo);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    color: var(--ciruela-suave);
+  }
+
+  .reloj {
+    position: relative;
+    width: min(76vw, 288px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+  .reloj svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .anillo-fondo { fill: none; stroke: rgba(38, 16, 63, .1); stroke-width: 10; }
+  .anillo { fill: none; stroke: url(#degradado); stroke-width: 10; stroke-linecap: round;
+            stroke-dasharray: 753.98; stroke-dashoffset: 753.98;
+            transform: rotate(-90deg); transform-origin: 130px 130px;
+            transition: stroke-dashoffset .9s linear; }
+  .mira { stroke: rgba(38, 16, 63, .06); stroke-width: 1; }
+
+  .cifras {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .dias {
+    min-height: 1.4em;
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--magenta);
+  }
+  .tiempo {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-family: var(--titulo);
+    font-weight: 800;
+    font-size: clamp(2.1rem, 9.5vw, 2.85rem);
+    line-height: 1;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .bloque { display: flex; flex-direction: column; align-items: center; }
+  .bloque small {
+    margin-top: 6px;
+    font-family: var(--texto);
+    font-weight: 500;
+    font-size: .72rem;
+    letter-spacing: 0;
+    color: var(--ciruela-suave);
+  }
+  .dos-puntos { opacity: .35; padding-top: 0; }
+
+  .cuando {
+    margin: 22px 0 6px;
+    font-size: 1.02rem;
+    color: var(--ciruela-suave);
+    text-wrap: balance;
+  }
+
+  .nombre {
+    margin: 0;
+    font-family: var(--titulo);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 5.4vw, 2rem);
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    overflow-wrap: anywhere;
+  }
+
+  .caption {
+    margin: 26px 0 0;
+    padding: 16px 18px 14px;
+    text-align: left;
+    background: var(--blanco);
+    border: 1px solid rgba(38, 16, 63, .14);
+    border-radius: 14px;
+  }
+  .caption h2 {
+    margin: 0 0 6px;
+    font-family: var(--texto);
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--ciruela-suave);
+  }
+  .caption p {
+    margin: 0;
+    max-height: 15rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-width: 62ch;
+  }
+  .copiar {
+    margin-top: 12px;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--violeta);
+    background: transparent;
+    border: 1.5px solid var(--violeta);
+    border-radius: 999px;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .copiar:hover { background: var(--violeta); color: var(--blanco); }
+  .copiar:focus-visible, a:focus-visible { outline: 3px solid var(--naranja); outline-offset: 3px; }
+
+  .pie {
+    margin: 22px 0 0;
+    font-size: .92rem;
+    color: var(--ciruela-suave);
+    text-wrap: balance;
+  }
+  .pie span { display: block; }
+
+  [hidden] { display: none !important; }
+
+  @keyframes entrada {
+    from { opacity: 0; transform: translateY(14px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (min-width: 880px) {
+    .escena { grid-template-columns: 360px minmax(0, 1fr); gap: 72px; justify-items: stretch; }
+    .proyector { justify-self: center; }
+    .proyector::before { inset: -18% -34%; }
+    .datos { text-align: left; width: 100%; max-width: 480px; }
+    .reloj { margin: 0; }
+    h1 { font-size: 1.4rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marco { animation: none; }
+    .anillo { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="escena">
+    <div class="proyector">
+      <figure class="marco">
+        <div class="tira izq" aria-hidden="true"></div>
+        <div class="tira der" aria-hidden="true"></div>
+        <div class="fotograma" id="fotograma">
+          <img id="portada" alt="Portada del próximo video" hidden>
+          <div class="sin-portada" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.55.83l10-6.5a1 1 0 0 0 0-1.66l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+          </div>
+        </div>
+      </figure>
+    </div>
+
+    <section class="datos" aria-live="polite">
+      <h1 id="titulo">Cargando…</h1>
+
+      <div class="reloj" role="timer" aria-live="off">
+        <svg viewBox="0 0 260 260" aria-hidden="true">
+          <defs>
+            <linearGradient id="degradado" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#feda75"/>
+              <stop offset=".35" stop-color="#fa7e1e"/>
+              <stop offset=".7" stop-color="#d62976"/>
+              <stop offset="1" stop-color="#6a3de8"/>
+            </linearGradient>
+          </defs>
+          <line class="mira" x1="130" y1="14" x2="130" y2="246"/>
+          <line class="mira" x1="14" y1="130" x2="246" y2="130"/>
+          <circle class="anillo-fondo" cx="130" cy="130" r="120"/>
+          <circle class="anillo" id="anillo" cx="130" cy="130" r="120"/>
+        </svg>
+        <div class="cifras">
+          <div class="dias" id="dias"></div>
+          <div class="tiempo">
+            <div class="bloque"><span id="hh">--</span><small>horas</small></div>
+            <span class="dos-puntos">:</span>
+            <div class="bloque"><span id="mm">--</span><small>min</small></div>
+            <span class="dos-puntos">:</span>
+            <div class="bloque"><span id="ss">--</span><small>seg</small></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="cuando" id="cuando"></p>
+      <h2 class="nombre" id="nombre" hidden></h2>
+
+      <div class="caption" id="cajaCaption" hidden>
+        <h2>Caption</h2>
+        <p id="caption"></p>
+        <button class="copiar" id="copiar" type="button">Copiar caption</button>
+      </div>
+
+      <p class="pie" id="pie"></p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var CIRCUNFERENCIA = 753.98;
+  var datos = null, objetivo = null, anterior = null, hayDatos = false;
+
+  function dos(n) { return (n < 10 ? "0" : "") + n; }
+
+  function formatoFecha(fecha, zona) {
+    var opciones = { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit", hour12: true };
+    try {
+      if (zona) opciones.timeZone = zona;
+      return new Intl.DateTimeFormat("es", opciones).format(fecha);
+    } catch (e) {
+      delete opciones.timeZone;
+      return new Intl.DateTimeFormat("es", opciones).format(fecha);
+    }
+  }
+
+  function haceCuanto(fecha) {
+    var seg = Math.round((fecha.getTime() - Date.now()) / 1000);
+    var rtf = new Intl.RelativeTimeFormat("es", { numeric: "auto" });
+    var abs = Math.abs(seg);
+    if (abs < 3600) return rtf.format(Math.round(seg / 60), "minute");
+    if (abs < 86400) return rtf.format(Math.round(seg / 3600), "hour");
+    return rtf.format(Math.round(seg / 86400), "day");
+  }
+
+  function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
+
+  async function cargar() {
+    try {
+      var r = await fetch("proximo.json?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) throw new Error("sin datos");
+      datos = await r.json();
+    } catch (e) {
+      datos = null;
+    }
+    pintar();
+  }
+
+  function pintar() {
+    var tieneDatos = !!(datos && (datos.proximo_horario || datos.siguiente || datos.ultimo));
+    hayDatos = tieneDatos;
+    objetivo = datos && datos.proximo_horario ? new Date(datos.proximo_horario) : null;
+    anterior = datos && datos.anterior_horario ? new Date(datos.anterior_horario) : null;
+
+    var siguiente = datos && datos.siguiente;
+    var imagen = $("portada");
+    if (siguiente && datos.portada) {
+      if (imagen.getAttribute("src") !== datos.portada) imagen.src = datos.portada;
+      imagen.hidden = false;
+      $("fotograma").classList.add("con-imagen");
+    } else {
+      imagen.hidden = true;
+      $("fotograma").classList.remove("con-imagen");
+    }
+
+    var nombre = $("nombre");
+    var caja = $("cajaCaption");
+    if (siguiente) {
+      nombre.textContent = siguiente.nombre;
+      nombre.hidden = false;
+      if (siguiente.caption) {
+        $("caption").textContent = siguiente.caption;
+        caja.hidden = false;
+      } else {
+        caja.hidden = true;
+      }
+    } else {
+      nombre.hidden = !tieneDatos;
+      nombre.textContent = tieneDatos ? "No quedan videos en la fila" : "";
+      caja.hidden = true;
+    }
+
+    var cuando = $("cuando");
+    if (!tieneDatos) {
+      cuando.textContent = "Cuando el publicador se ejecute por primera vez, aquí verás el siguiente video.";
+    } else if (objetivo) {
+      cuando.textContent = "Sale el " + formatoFecha(objetivo, datos.zona);
+    } else {
+      cuando.textContent = "No hay ninguna publicación programada.";
+    }
+
+    var pie = [];
+    if (datos && typeof datos.pendientes === "number") {
+      pie.push(datos.pendientes === 0 ? "No quedan videos en la fila." : datos.pendientes === 1 ? "Queda 1 video en la fila." : "Quedan " + datos.pendientes + " videos en la fila.");
+    }
+    if (datos && datos.ultimo && datos.ultimo.fecha) {
+      pie.push("Último publicado: " + datos.ultimo.nombre + ", " + haceCuanto(new Date(datos.ultimo.fecha)) + ".");
+    }
+    $("pie").innerHTML = "";
+    pie.forEach(function (linea) {
+      var s = document.createElement("span");
+      s.textContent = linea;
+      $("pie").appendChild(s);
+    });
+
+    tic();
+  }
+
+  function tic() {
+    var anillo = $("anillo");
+    if (!objetivo) {
+      $("titulo").textContent = hayDatos ? "Sin publicaciones a la vista" : "Todavía no hay datos";
+      $("hh").textContent = $("mm").textContent = $("ss").textContent = "--";
+      $("dias").textContent = "";
+      anillo.style.strokeDashoffset = CIRCUNFERENCIA;
+      document.title = "Próximo Reel";
+      return;
+    }
+    var restante = Math.floor((objetivo.getTime() - Date.now()) / 1000);
+    if (restante <= 0) {
+      $("titulo").textContent = "Publicando ahora";
+      $("hh").textContent = $("mm").textContent = $("ss").textContent = "00";
+      $("dias").textContent = "";
+      anillo.style.strokeDashoffset = 0;
+      document.title = "Publicando ahora";
+      return;
+    }
+    var d = Math.floor(restante / 86400);
+    var h = Math.floor((restante % 86400) / 3600);
+    var m = Math.floor((restante % 3600) / 60);
+    var s = restante % 60;
+    $("titulo").textContent = "Próxima publicación en";
+    $("dias").textContent = d > 0 ? plural(d, "día", "días") : "";
+    $("hh").textContent = dos(h);
+    $("mm").textContent = dos(m);
+    $("ss").textContent = dos(s);
+    document.title = (d > 0 ? d + "d " : "") + dos(h) + ":" + dos(m) + ":" + dos(s) + " para el próximo Reel";
+
+    var avance = 0;
+    if (anterior && objetivo > anterior) {
+      avance = (Date.now() - anterior.getTime()) / (objetivo.getTime() - anterior.getTime());
+      avance = Math.min(1, Math.max(0, avance));
+    }
+    anillo.style.strokeDashoffset = CIRCUNFERENCIA * (1 - avance);
+  }
+
+  $("copiar").addEventListener("click", function () {
+    var boton = this;
+    var texto = $("caption").textContent;
+    function listo() {
+      boton.textContent = "Caption copiado";
+      setTimeout(function () { boton.textContent = "Copiar caption"; }, 2200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(listo, function () { boton.textContent = "No se pudo copiar"; });
+    } else {
+      var area = document.createElement("textarea");
+      area.value = texto;
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand("copy"); listo(); } catch (e) { boton.textContent = "No se pudo copiar"; }
+      document.body.removeChild(area);
+    }
+  });
+
+  cargar();
+  setInterval(tic, 1000);
+  setInterval(cargar, 120000);
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+name: Publicar en Instagram
+
+on:
+  schedule:
+    - cron: "7 * * * *"   # una vez por hora, al minuto 7
+  workflow_dispatch:       # permite ejecutarlo a mano desde la pestaña Actions
+    inputs:
+      ahora:
+        description: "Publicar el siguiente video ya, ignorando los horarios"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write   # permite conectar con Google sin descargar ninguna clave
+
+concurrency:
+  group: publicador
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/Tegucigalpa   # los horarios de configuracion.ini se leen en esta zona horaria
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Conectar con Google (sin claves)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Instalar librerías
+        run: pip install -r requirements.txt
+
+      - name: Instalar ffmpeg
+        run: command -v ffmpeg >/dev/null || (sudo apt-get update -y && sudo apt-get install -y ffmpeg)
+
+      - name: Publicar
+        run: python publicador_nube.py ${{ inputs.ahora && '--ahora' || '' }}
+
+      - name: Guardar estado
+        if: success()
+        run: |
+          git config user.name "publicador-bot"
+          git config user.email "publicador-bot@users.noreply.github.com"
+          git add estado.json docs
+          git diff --staged --quiet || (git commit -m "Actualizar estado" && git push)

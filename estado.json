@@ -1,11 +1,19 @@
 {
-  "publicados": [],
+  "publicados": [
+    "1WoUESMvdfI5-dH97Tw50TeAruWYq59Lx"
+  ],
   "horarios_hechos": [],
   "ultima_carpeta": -1,
-  "nombres": {},
-  "siguiente": {
-    "id": "1WoUESMvdfI5-dH97Tw50TeAruWYq59Lx",
-    "nombre": "Ad 0.mp4"
+  "nombres": {
+    "1WoUESMvdfI5-dH97Tw50TeAruWYq59Lx": "Ad 0.mp4"
   },
-  "portada_de": "1WoUESMvdfI5-dH97Tw50TeAruWYq59Lx"
+  "siguiente": {
+    "id": "1WwRCb_BAcHmKkt9-o24v-NgrhXwdBID6",
+    "nombre": "Ad 1.mp4"
+  },
+  "portada_de": "1WwRCb_BAcHmKkt9-o24v-NgrhXwdBID6",
+  "ultimo": {
+    "nombre": "Ad 0",
+    "fecha": "2026-11-16T16:15:07-06:00"
+  }
 }

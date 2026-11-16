@@ -3,11 +3,14 @@
   "proximo_horario": "2026-11-16T18:00:00-06:00",
   "anterior_horario": "2026-11-16T10:00:00-06:00",
   "siguiente": {
-    "nombre": "Ad 0",
-    "caption": "Escribe aquí tu caption 🎬 #hashtag1 #hashtag2"
+    "nombre": "Ad 1",
+    "caption": "Si quieres mas informacion comenta \"CLASE\"🚀 \n\n\n\n#franquiciaia #parati #negociosdigitales #emprendimientodigital"
   },
-  "portada": "portada.jpg?v=1WoUESMvdfI5-dH97Tw50TeAruWYq59Lx",
-  "pendientes": 52,
-  "ultimo": null,
-  "actualizado": "2026-11-16T15:47:34-06:00"
+  "portada": "portada.jpg?v=1WwRCb_BAcHmKkt9-o24v-NgrhXwdBID6",
+  "pendientes": 51,
+  "ultimo": {
+    "nombre": "Ad 0",
+    "fecha": "2026-11-16T16:15:07-06:00"
+  },
+  "actualizado": "2026-11-16T16:15:11-06:00"
 }

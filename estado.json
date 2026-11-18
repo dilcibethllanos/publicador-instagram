@@ -22,7 +22,8 @@
   },
   "siguiente": {
     "id": "1JDLqBrsXlaKPUpweWabvoY9xBYCSJ4hG",
-    "nombre": "AD 433.mp4"
+    "nombre": "AD 433.mp4",
+    "forzado": false
   },
   "portada_de": "1JDLqBrsXlaKPUpweWabvoY9xBYCSJ4hG",
   "ultimo": {

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Próximo Reel</title>
+<title>Publicador</title>
 <meta name="theme-color" content="#26103f">
-<meta name="description" content="Cuenta regresiva, portada y caption del próximo Reel que se publica en Instagram.">
+<meta name="description" content="Cuenta regresiva, portada y descripción del próximo Reel, con ajustes editables.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -18,10 +18,12 @@
     --ciruela: #26103f;
     --ciruela-suave: #5d4a78;
     --violeta: #6a3de8;
+    --violeta-oscuro: #5127c9;
     --magenta: #d62976;
     --naranja: #fa7e1e;
     --ambar: #feda75;
     --blanco: #ffffff;
+    --linea: rgba(38, 16, 63, .14);
     --titulo: "Bricolage Grotesque", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
     --texto: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   }
@@ -38,28 +40,67 @@
     font-family: var(--texto);
     font-size: 1rem;
     line-height: 1.5;
-    padding: max(28px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
-             max(36px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    padding: 0 max(20px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   }
 
-  main {
+  [hidden] { display: none !important; }
+
+  /* ---------- Barra superior ---------- */
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 -20px;
+    padding: max(12px, env(safe-area-inset-top)) 20px 12px;
+    background: var(--lila);
+    border-bottom: 1px solid var(--linea);
+  }
+  .barra-in {
     max-width: 1020px;
     margin: 0 auto;
-  }
-
-  .escena {
-    display: grid;
-    gap: 40px;
+    display: flex;
     align-items: center;
-    justify-items: center;
+    justify-content: center;
+    gap: 16px;
   }
+  .marca {
+    display: none;
+    font-family: var(--titulo);
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -.01em;
+  }
+  .tabs {
+    display: flex;
+    width: 100%;
+    max-width: 380px;
+    padding: 4px;
+    gap: 2px;
+    background: rgba(38, 16, 63, .07);
+    border-radius: 999px;
+  }
+  .tabs button {
+    flex: 1;
+    font: inherit;
+    font-weight: 600;
+    font-size: .95rem;
+    padding: 8px 6px;
+    color: var(--ciruela-suave);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tabs button[aria-selected="true"] { background: var(--ciruela); color: var(--blanco); }
+  .tabs button:focus-visible { outline: 3px solid var(--naranja); outline-offset: 2px; }
 
-  /* ---------- Marco de película con la portada ---------- */
-  .proyector {
-    position: relative;
-    width: min(100%, 360px);
-  }
-  /* la luz del proyector detrás del fotograma: el único adorno de la página */
+  main { max-width: 1020px; margin: 0 auto; padding-top: 28px; }
+
+  /* ---------- Panel ---------- */
+  .escena { display: grid; gap: 40px; align-items: center; justify-items: center; }
+
+  .proyector { position: relative; width: min(100%, 360px); }
   .proyector::before {
     content: "";
     position: absolute;
@@ -79,7 +120,6 @@
     box-shadow: 0 28px 60px -24px rgba(38, 16, 63, .6);
     animation: entrada .7s cubic-bezier(.2, .7, .2, 1) both;
   }
-
   .tira {
     position: absolute;
     top: 0;
@@ -93,36 +133,15 @@
   .tira.izq { left: 0; }
   .tira.der { right: 0; }
 
-  .fotograma {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    background: #3b2360;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .fotograma img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .sin-portada {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(160deg, #4a2d7a, #26103f);
-  }
+  .fotograma { position: relative; aspect-ratio: 4 / 5; background: #3b2360; border-radius: 3px; overflow: hidden; }
+  .fotograma img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .sin-portada { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(160deg, #4a2d7a, #26103f); }
   .sin-portada svg { width: 34%; opacity: .85; }
   .fotograma.con-imagen .sin-portada { display: none; }
 
-  /* ---------- Datos ---------- */
-  .datos {
-    width: min(100%, 460px);
-    text-align: center;
-  }
+  .datos { width: min(100%, 460px); text-align: center; }
 
-  h1 {
+  h1.lead {
     margin: 0 0 18px;
     font-family: var(--titulo);
     font-weight: 600;
@@ -131,12 +150,7 @@
     color: var(--ciruela-suave);
   }
 
-  .reloj {
-    position: relative;
-    width: min(76vw, 288px);
-    aspect-ratio: 1;
-    margin: 0 auto;
-  }
+  .reloj { position: relative; width: min(76vw, 288px); aspect-ratio: 1; margin: 0 auto; }
   .reloj svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .anillo-fondo { fill: none; stroke: rgba(38, 16, 63, .1); stroke-width: 10; }
   .anillo { fill: none; stroke: url(#degradado); stroke-width: 10; stroke-linecap: round;
@@ -145,21 +159,8 @@
             transition: stroke-dashoffset .9s linear; }
   .mira { stroke: rgba(38, 16, 63, .06); stroke-width: 1; }
 
-  .cifras {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-  }
-  .dias {
-    min-height: 1.4em;
-    font-size: .95rem;
-    font-weight: 600;
-    color: var(--magenta);
-  }
+  .cifras { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .dias { min-height: 1.4em; font-size: .95rem; font-weight: 600; color: var(--magenta); }
   .tiempo {
     display: flex;
     align-items: flex-start;
@@ -172,25 +173,23 @@
     font-variant-numeric: tabular-nums;
   }
   .bloque { display: flex; flex-direction: column; align-items: center; }
-  .bloque small {
-    margin-top: 6px;
-    font-family: var(--texto);
-    font-weight: 500;
-    font-size: .72rem;
-    letter-spacing: 0;
-    color: var(--ciruela-suave);
-  }
-  .dos-puntos { opacity: .35; padding-top: 0; }
+  .bloque small { margin-top: 6px; font-family: var(--texto); font-weight: 500; font-size: .72rem; letter-spacing: 0; color: var(--ciruela-suave); }
+  .dos-puntos { opacity: .35; }
 
-  .cuando {
-    margin: 22px 0 6px;
-    font-size: 1.02rem;
-    color: var(--ciruela-suave);
-    text-wrap: balance;
+  .cuando { margin: 22px 0 6px; font-size: 1.02rem; color: var(--ciruela-suave); text-wrap: balance; }
+  .pausa {
+    margin: 12px auto 0;
+    padding: 8px 14px;
+    width: fit-content;
+    max-width: 100%;
+    font-weight: 600;
+    font-size: .95rem;
+    color: var(--ciruela);
+    background: var(--ambar);
+    border-radius: 999px;
   }
-
   .nombre {
-    margin: 0;
+    margin: 10px 0 0;
     font-family: var(--titulo);
     font-weight: 800;
     font-size: clamp(1.5rem, 5.4vw, 2rem);
@@ -198,60 +197,145 @@
     letter-spacing: -.01em;
     overflow-wrap: anywhere;
   }
+  .etiquetas { margin: 6px 0 0; font-size: .9rem; color: var(--magenta); font-weight: 600; }
 
-  .caption {
-    margin: 26px 0 0;
-    padding: 16px 18px 14px;
-    text-align: left;
-    background: var(--blanco);
-    border: 1px solid rgba(38, 16, 63, .14);
-    border-radius: 14px;
-  }
-  .caption h2 {
-    margin: 0 0 6px;
-    font-family: var(--texto);
-    font-size: .95rem;
-    font-weight: 600;
-    color: var(--ciruela-suave);
-  }
-  .caption p {
-    margin: 0;
-    max-height: 15rem;
-    overflow: auto;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    max-width: 62ch;
-  }
-  .copiar {
-    margin-top: 12px;
+  .caption { margin: 26px 0 0; padding: 16px 18px 14px; text-align: left; background: var(--blanco); border: 1px solid var(--linea); border-radius: 14px; }
+  .caption h2 { margin: 0 0 6px; font-family: var(--texto); font-size: .95rem; font-weight: 600; color: var(--ciruela-suave); }
+  .caption p { margin: 0; max-height: 15rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 62ch; }
+
+  .acciones-panel { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .pie { margin: 22px 0 0; font-size: .92rem; color: var(--ciruela-suave); text-wrap: balance; }
+  .pie span { display: block; }
+
+  /* ---------- Botones y formularios ---------- */
+  .boton {
     font: inherit;
-    font-size: .9rem;
     font-weight: 600;
-    color: var(--violeta);
-    background: transparent;
+    font-size: .95rem;
+    padding: 11px 20px;
+    color: var(--blanco);
+    background: var(--violeta);
     border: 1.5px solid var(--violeta);
     border-radius: 999px;
-    padding: 7px 16px;
     cursor: pointer;
     transition: background .15s, color .15s;
   }
-  .copiar:hover { background: var(--violeta); color: var(--blanco); }
-  .copiar:focus-visible, a:focus-visible { outline: 3px solid var(--naranja); outline-offset: 3px; }
-
-  .pie {
-    margin: 22px 0 0;
-    font-size: .92rem;
-    color: var(--ciruela-suave);
-    text-wrap: balance;
+  .boton:hover { background: var(--violeta-oscuro); border-color: var(--violeta-oscuro); }
+  .boton.secundario { color: var(--violeta); background: transparent; }
+  .boton.secundario:hover { color: var(--blanco); background: var(--violeta); }
+  .boton.texto { color: var(--ciruela-suave); background: transparent; border-color: transparent; text-decoration: underline; padding-left: 10px; padding-right: 10px; }
+  .boton.texto:hover { color: var(--ciruela); background: transparent; border-color: transparent; }
+  .boton:disabled { opacity: .5; cursor: not-allowed; }
+  .boton:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible, .item:focus-visible {
+    outline: 3px solid var(--naranja);
+    outline-offset: 2px;
   }
-  .pie span { display: block; }
 
-  [hidden] { display: none !important; }
+  .vista-simple { max-width: 640px; margin: 0 auto; }
+  .vista-simple h1 { margin: 0 0 6px; font-family: var(--titulo); font-weight: 800; font-size: 1.9rem; letter-spacing: -.01em; }
+  .ayuda { margin: 4px 0 0; font-size: .92rem; color: var(--ciruela-suave); text-wrap: pretty; }
 
-  @keyframes entrada {
-    from { opacity: 0; transform: translateY(14px) scale(.97); }
-    to   { opacity: 1; transform: none; }
+  .grupo { margin-top: 26px; padding: 18px 18px 20px; background: var(--blanco); border: 1px solid var(--linea); border-radius: 14px; }
+  .grupo h2 { margin: 0 0 4px; font-family: var(--titulo); font-weight: 600; font-size: 1.15rem; }
+
+  input[type="time"], input[type="search"], input[type="password"], input[type="text"], textarea {
+    font: inherit;
+    color: var(--ciruela);
+    background: var(--blanco);
+    border: 1.5px solid rgba(38, 16, 63, .28);
+    border-radius: 10px;
+    padding: 10px 12px;
+    width: 100%;
   }
+  textarea { resize: vertical; min-height: 7rem; line-height: 1.45; }
+  input[type="time"] { width: auto; min-width: 9.5rem; }
+  label.campo { display: block; margin-top: 12px; font-weight: 600; font-size: .95rem; }
+
+  .fila-hora { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .fila-hora .boton { padding: 8px 14px; }
+  #btnAgregarHora { margin-top: 12px; }
+
+  .opciones { display: grid; gap: 8px; margin-top: 10px; }
+  .opciones label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .opciones input { width: 1.15rem; height: 1.15rem; accent-color: var(--violeta); }
+
+  .interruptor { display: flex; align-items: center; gap: 12px; margin-top: 10px; cursor: pointer; font-weight: 500; }
+  .interruptor input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pista { position: relative; flex: none; width: 46px; height: 26px; background: rgba(38, 16, 63, .25); border-radius: 999px; transition: background .15s; }
+  .pista::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: var(--blanco); border-radius: 50%; transition: transform .15s; }
+  .interruptor input:checked + .pista { background: var(--violeta); }
+  .interruptor input:checked + .pista::after { transform: translateX(20px); }
+  .interruptor input:focus-visible + .pista { outline: 3px solid var(--naranja); outline-offset: 2px; }
+
+  .guardar { position: sticky; bottom: max(12px, env(safe-area-inset-bottom)); margin-top: 22px; display: flex; justify-content: center; }
+  .guardar .boton { box-shadow: 0 10px 30px -10px rgba(38, 16, 63, .55); padding: 13px 30px; }
+
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--violeta); }
+  details ol { margin: 10px 0 0; padding-left: 1.3rem; }
+  details li { margin-top: 6px; }
+
+  .estado-token { margin: 6px 0 0; font-weight: 600; }
+  .estado-token.ok { color: #1c7a43; }
+  .fila-token { display: flex; gap: 10px; margin-top: 12px; }
+  .fila-token input { flex: 1; min-width: 0; }
+
+  /* ---------- Lista de videos ---------- */
+  #buscar { margin-top: 16px; }
+  .lista { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+  .item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font: inherit;
+    text-align: left;
+    color: var(--ciruela);
+    background: var(--blanco);
+    border: 1px solid var(--linea);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .item:hover { border-color: var(--violeta); }
+  .item-nombre { font-weight: 600; overflow-wrap: anywhere; }
+  .item-etiqueta { flex: none; font-size: .8rem; font-weight: 600; color: var(--blanco); background: var(--magenta); border-radius: 999px; padding: 2px 10px; }
+  .item-etiqueta.suave { color: var(--ciruela); background: var(--ambar); }
+  .vacio { margin: 18px 0 0; color: var(--ciruela-suave); }
+
+  /* ---------- Ventanas y aviso ---------- */
+  dialog { width: min(92vw, 460px); padding: 22px; color: var(--ciruela); background: var(--blanco); border: 0; border-radius: 18px; box-shadow: 0 30px 80px -20px rgba(38, 16, 63, .7); }
+  dialog::backdrop { background: rgba(38, 16, 63, .5); }
+  dialog h2 { margin: 0 0 10px; font-family: var(--titulo); font-weight: 800; font-size: 1.35rem; line-height: 1.2; overflow-wrap: anywhere; }
+  dialog textarea { margin-top: 8px; }
+  .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .msg-dialogo { margin: 10px 0 0; font-size: .92rem; font-weight: 600; color: var(--magenta); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translate(-50%, 20px);
+    z-index: 50;
+    width: max-content;
+    max-width: min(92vw, 520px);
+    padding: 12px 18px;
+    font-weight: 500;
+    color: var(--blanco);
+    background: var(--ciruela);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px -12px rgba(38, 16, 63, .6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+  .toast.error { background: #a31d4d; }
+
+  @keyframes entrada { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+
+  @media (min-width: 520px) { .marca { display: block; } .barra-in { justify-content: space-between; } }
 
   @media (min-width: 880px) {
     .escena { grid-template-columns: 360px minmax(0, 1fr); gap: 72px; justify-items: stretch; }
@@ -259,83 +343,244 @@
     .proyector::before { inset: -18% -34%; }
     .datos { text-align: left; width: 100%; max-width: 480px; }
     .reloj { margin: 0; }
-    h1 { font-size: 1.4rem; }
+    h1.lead { font-size: 1.4rem; }
+    .pausa { margin-left: 0; }
+    .acciones-panel { justify-content: flex-start; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .marco { animation: none; }
-    .anillo { transition: none; }
+    .anillo, .toast, .pista, .pista::after { transition: none; }
   }
 </style>
 </head>
 <body>
+<header class="barra">
+  <div class="barra-in">
+    <span class="marca">Publicador</span>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button type="button" role="tab" id="tab-panel" aria-selected="true" aria-controls="vista-panel">Panel</button>
+      <button type="button" role="tab" id="tab-videos" aria-selected="false" aria-controls="vista-videos">Videos</button>
+      <button type="button" role="tab" id="tab-ajustes" aria-selected="false" aria-controls="vista-ajustes">Ajustes</button>
+    </nav>
+  </div>
+</header>
+
 <main>
-  <div class="escena">
-    <div class="proyector">
-      <figure class="marco">
-        <div class="tira izq" aria-hidden="true"></div>
-        <div class="tira der" aria-hidden="true"></div>
-        <div class="fotograma" id="fotograma">
-          <img id="portada" alt="Portada del próximo video" hidden>
-          <div class="sin-portada" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.55.83l10-6.5a1 1 0 0 0 0-1.66l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+  <!-- ===================== PANEL ===================== -->
+  <section id="vista-panel" role="tabpanel" aria-labelledby="tab-panel">
+    <div class="escena">
+      <div class="proyector">
+        <figure class="marco">
+          <div class="tira izq" aria-hidden="true"></div>
+          <div class="tira der" aria-hidden="true"></div>
+          <div class="fotograma" id="fotograma">
+            <img id="portada" alt="Portada del próximo video" hidden>
+            <div class="sin-portada" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.55.83l10-6.5a1 1 0 0 0 0-1.66l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <section class="datos" aria-live="polite">
+        <h1 class="lead" id="titulo">Cargando…</h1>
+
+        <div class="reloj" role="timer" aria-live="off">
+          <svg viewBox="0 0 260 260" aria-hidden="true">
+            <defs>
+              <linearGradient id="degradado" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#feda75"/>
+                <stop offset=".35" stop-color="#fa7e1e"/>
+                <stop offset=".7" stop-color="#d62976"/>
+                <stop offset="1" stop-color="#6a3de8"/>
+              </linearGradient>
+            </defs>
+            <line class="mira" x1="130" y1="14" x2="130" y2="246"/>
+            <line class="mira" x1="14" y1="130" x2="246" y2="130"/>
+            <circle class="anillo-fondo" cx="130" cy="130" r="120"/>
+            <circle class="anillo" id="anillo" cx="130" cy="130" r="120"/>
+          </svg>
+          <div class="cifras">
+            <div class="dias" id="dias"></div>
+            <div class="tiempo">
+              <div class="bloque"><span id="hh">--</span><small>horas</small></div>
+              <span class="dos-puntos">:</span>
+              <div class="bloque"><span id="mm">--</span><small>min</small></div>
+              <span class="dos-puntos">:</span>
+              <div class="bloque"><span id="ss">--</span><small>seg</small></div>
+            </div>
           </div>
         </div>
-      </figure>
+
+        <p class="cuando" id="cuando"></p>
+        <p class="pausa" id="pausa" hidden>Las publicaciones están en pausa.</p>
+        <h2 class="nombre" id="nombre" hidden></h2>
+        <p class="etiquetas" id="etiquetas" hidden></p>
+
+        <div class="caption" id="cajaCaption" hidden>
+          <h2>Descripción</h2>
+          <p id="caption"></p>
+        </div>
+
+        <div class="acciones-panel">
+          <button class="boton secundario" id="copiar" type="button" hidden>Copiar descripción</button>
+          <button class="boton" id="btnAhora" type="button" hidden>Publicar ahora</button>
+        </div>
+
+        <p class="pie" id="pie"></p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ===================== VIDEOS ===================== -->
+  <section id="vista-videos" role="tabpanel" aria-labelledby="tab-videos" class="vista-simple" hidden>
+    <h1>Videos en la fila</h1>
+    <p class="ayuda" id="videosResumen"></p>
+    <input type="search" id="buscar" placeholder="Buscar por nombre" aria-label="Buscar video por nombre" autocomplete="off">
+    <ul class="lista" id="lista"></ul>
+    <p class="vacio" id="listaVacia" hidden></p>
+  </section>
+
+  <!-- ===================== AJUSTES ===================== -->
+  <section id="vista-ajustes" role="tabpanel" aria-labelledby="tab-ajustes" class="vista-simple" hidden>
+    <h1>Ajustes</h1>
+    <p class="ayuda">Los cambios se aplican en la siguiente ejecución, que ocurre cada hora.</p>
+
+    <div class="grupo">
+      <h2>Horarios de publicación</h2>
+      <p class="ayuda" id="zonaTxt"></p>
+      <div id="horas"></div>
+      <button class="boton secundario" id="btnAgregarHora" type="button">Agregar horario</button>
+      <p class="ayuda">Si agregas una hora que pasó hace menos de 3 horas, se publicará enseguida.</p>
     </div>
 
-    <section class="datos" aria-live="polite">
-      <h1 id="titulo">Cargando…</h1>
+    <div class="grupo">
+      <h2>Descripción</h2>
+      <p class="ayuda">Es el texto que lleva cada Reel. Puedes escribir varias líneas y hashtags.</p>
+      <label class="campo" for="descripcion">Descripción general</label>
+      <textarea id="descripcion" rows="9" maxlength="2200"></textarea>
+      <p class="ayuda" id="contador"></p>
+    </div>
 
-      <div class="reloj" role="timer" aria-live="off">
-        <svg viewBox="0 0 260 260" aria-hidden="true">
-          <defs>
-            <linearGradient id="degradado" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stop-color="#feda75"/>
-              <stop offset=".35" stop-color="#fa7e1e"/>
-              <stop offset=".7" stop-color="#d62976"/>
-              <stop offset="1" stop-color="#6a3de8"/>
-            </linearGradient>
-          </defs>
-          <line class="mira" x1="130" y1="14" x2="130" y2="246"/>
-          <line class="mira" x1="14" y1="130" x2="246" y2="130"/>
-          <circle class="anillo-fondo" cx="130" cy="130" r="120"/>
-          <circle class="anillo" id="anillo" cx="130" cy="130" r="120"/>
-        </svg>
-        <div class="cifras">
-          <div class="dias" id="dias"></div>
-          <div class="tiempo">
-            <div class="bloque"><span id="hh">--</span><small>horas</small></div>
-            <span class="dos-puntos">:</span>
-            <div class="bloque"><span id="mm">--</span><small>min</small></div>
-            <span class="dos-puntos">:</span>
-            <div class="bloque"><span id="ss">--</span><small>seg</small></div>
-          </div>
-        </div>
+    <div class="grupo">
+      <h2>Orden de los videos</h2>
+      <div class="opciones" role="radiogroup" aria-label="Orden de los videos">
+        <label><input type="radio" name="orden" value="alfabetico"> Por nombre</label>
+        <label><input type="radio" name="orden" value="aleatorio"> Al azar</label>
       </div>
+      <p class="ayuda">Si eliges un video a mano en la sección Videos, ese sale primero.</p>
+    </div>
 
-      <p class="cuando" id="cuando"></p>
-      <h2 class="nombre" id="nombre" hidden></h2>
+    <div class="grupo">
+      <h2>Pausa</h2>
+      <label class="interruptor">
+        <input type="checkbox" id="pausado">
+        <span class="pista" aria-hidden="true"></span>
+        <span>Pausar las publicaciones</span>
+      </label>
+    </div>
 
-      <div class="caption" id="cajaCaption" hidden>
-        <h2>Caption</h2>
-        <p id="caption"></p>
-        <button class="copiar" id="copiar" type="button">Copiar caption</button>
+    <div class="guardar"><button class="boton" id="btnGuardar" type="button">Guardar cambios</button></div>
+
+    <div class="grupo">
+      <h2>Conexión con GitHub</h2>
+      <p class="ayuda">Para guardar cambios desde este dispositivo hace falta un token de GitHub. Se guarda solo aquí, en este navegador o app.</p>
+      <p class="estado-token" id="estadoToken"></p>
+      <div class="fila-token" id="filaToken">
+        <input type="password" id="token" placeholder="Pega aquí tu token" aria-label="Token de GitHub" autocomplete="off" spellcheck="false">
+        <button class="boton" id="btnConectar" type="button">Conectar</button>
       </div>
-
-      <p class="pie" id="pie"></p>
-    </section>
-  </div>
+      <button class="boton texto" id="btnQuitarToken" type="button" hidden>Quitar el token de este dispositivo</button>
+      <details>
+        <summary>¿Cómo crear el token?</summary>
+        <ol>
+          <li>En github.com, toca tu foto de perfil y entra a <strong>Settings</strong>.</li>
+          <li>Baja hasta <strong>Developer settings</strong>, luego <strong>Personal access tokens</strong> y <strong>Fine-grained tokens</strong>.</li>
+          <li>Pulsa <strong>Generate new token</strong> y ponle un nombre, por ejemplo "app publicador".</li>
+          <li>En <strong>Repository access</strong> elige <strong>Only select repositories</strong> y marca solo tu repositorio del publicador.</li>
+          <li>En <strong>Repository permissions</strong> pon <strong>Contents: Read and write</strong> y <strong>Actions: Read and write</strong>.</li>
+          <li>Pulsa <strong>Generate token</strong>, copia el texto que aparece (solo se muestra una vez) y pégalo arriba.</li>
+        </ol>
+        <p class="ayuda">Quien tenga este token puede cambiar los archivos de ese repositorio. Si pierdes el teléfono, bórralo desde la misma pantalla de GitHub.</p>
+      </details>
+    </div>
+  </section>
 </main>
+
+<dialog id="dlgVideo" aria-labelledby="dlgVideoTitulo">
+  <h2 id="dlgVideoTitulo"></h2>
+  <label class="campo" for="descVideo">Descripción solo para este video (opcional)</label>
+  <textarea id="descVideo" rows="6" maxlength="2200"></textarea>
+  <p class="ayuda">Si la dejas vacía, se usa la descripción general.</p>
+  <p class="msg-dialogo" id="dlgVideoMsg" role="alert" hidden></p>
+  <div class="acciones">
+    <button class="boton" id="btnElegir" type="button">Publicar este después</button>
+    <button class="boton secundario" id="btnSoloDesc" type="button">Guardar solo la descripción</button>
+    <button class="boton texto" id="btnQuitarEleccion" type="button" hidden>Quitar mi elección</button>
+    <button class="boton texto" id="btnCerrarVideo" type="button">Cerrar</button>
+  </div>
+</dialog>
+
+<dialog id="dlgAhora" aria-labelledby="dlgAhoraTitulo">
+  <h2 id="dlgAhoraTitulo">¿Publicar ahora?</h2>
+  <p id="dlgAhoraTexto"></p>
+  <p class="msg-dialogo" id="dlgAhoraMsg" role="alert" hidden></p>
+  <div class="acciones">
+    <button class="boton" id="btnConfirmarAhora" type="button">Sí, publicar ahora</button>
+    <button class="boton texto" id="btnCancelarAhora" type="button">Cancelar</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var CIRCUNFERENCIA = 753.98;
-  var datos = null, objetivo = null, anterior = null, hayDatos = false;
 
+  /* ------------------------------------------------------------------ repositorio */
+  var OWNER = "", REPO = "";
+  var parametros = new URLSearchParams(location.search);
+  var repoParam = parametros.get("repo"); // solo para pruebas: ?repo=usuario/repositorio
+  if (repoParam && repoParam.indexOf("/") > 0) {
+    OWNER = repoParam.split("/")[0];
+    REPO = repoParam.split("/")[1];
+  } else if (/\.github\.io$/.test(location.hostname)) {
+    OWNER = location.hostname.split(".")[0];
+    REPO = location.pathname.split("/").filter(Boolean)[0] || "";
+  }
+  var API = OWNER && REPO ? "https://api.github.com/repos/" + OWNER + "/" + REPO : "";
+
+  /* ------------------------------------------------------------------ utilidades */
   function dos(n) { return (n < 10 ? "0" : "") + n; }
+  function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
+
+  function aB64(texto) {
+    var bytes = new TextEncoder().encode(texto), bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+  function deB64(b64) {
+    var bin = atob(String(b64).replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  var temporizadorAviso = null;
+  function aviso(texto, error) {
+    var t = $("toast");
+    t.textContent = texto;
+    t.className = "toast visible" + (error ? " error" : "");
+    clearTimeout(temporizadorAviso);
+    temporizadorAviso = setTimeout(function () { t.className = "toast"; }, error ? 6500 : 4500);
+  }
+
+  function leerToken() { try { return localStorage.getItem("ghToken") || ""; } catch (e) { return ""; } }
+  function guardarToken(t) {
+    try { if (t) localStorage.setItem("ghToken", t); else localStorage.removeItem("ghToken"); } catch (e) {}
+  }
 
   function formatoFecha(fecha, zona) {
     var opciones = { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit", hour12: true };
@@ -347,36 +592,110 @@
       return new Intl.DateTimeFormat("es", opciones).format(fecha);
     }
   }
-
   function haceCuanto(fecha) {
-    var seg = Math.round((fecha.getTime() - Date.now()) / 1000);
+    var seg = Math.round((fecha.getTime() - Date.now()) / 1000), abs = Math.abs(seg);
     var rtf = new Intl.RelativeTimeFormat("es", { numeric: "auto" });
-    var abs = Math.abs(seg);
     if (abs < 3600) return rtf.format(Math.round(seg / 60), "minute");
     if (abs < 86400) return rtf.format(Math.round(seg / 3600), "hour");
     return rtf.format(Math.round(seg / 86400), "day");
   }
 
-  function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
-
-  async function cargar() {
-    try {
-      var r = await fetch("proximo.json?t=" + Date.now(), { cache: "no-store" });
-      if (!r.ok) throw new Error("sin datos");
-      datos = await r.json();
-    } catch (e) {
-      datos = null;
-    }
-    pintar();
+  /* ------------------------------------------------------------------ GitHub */
+  async function gh(ruta, opciones) {
+    if (!API) throw new Error("No pude saber de qué repositorio es esta página.");
+    opciones = opciones || {};
+    var cabeceras = Object.assign({ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, opciones.headers || {});
+    var token = leerToken();
+    if (token) cabeceras["Authorization"] = "Bearer " + token;
+    return fetch(API + ruta, Object.assign({}, opciones, { headers: cabeceras, cache: "no-store" }));
   }
 
-  function pintar() {
+  async function leerAjustesRemotos() {
+    var r = await gh("/contents/ajustes.json");
+    if (r.status === 404) return { datos: {}, sha: null };
+    if (!r.ok) throw new Error("No pude leer los ajustes (" + r.status + ").");
+    var j = await r.json(), datos = {};
+    try { datos = JSON.parse(deB64(j.content)); } catch (e) { datos = {}; }
+    if (!datos || typeof datos !== "object") datos = {};
+    return { datos: datos, sha: j.sha };
+  }
+
+  async function guardarAjustesRemotos(mutar) {
+    if (!leerToken()) throw new Error("Primero conecta GitHub en la sección Ajustes.");
+    for (var intento = 0; intento < 2; intento++) {
+      var actual = await leerAjustesRemotos();
+      var nuevo = mutar(JSON.parse(JSON.stringify(actual.datos)));
+      var cuerpo = { message: "Cambiar ajustes desde la app", content: aB64(JSON.stringify(nuevo, null, 2) + "\n") };
+      if (actual.sha) cuerpo.sha = actual.sha;
+      var r = await gh("/contents/ajustes.json", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
+      if (r.status === 409 || r.status === 422) continue; // alguien lo cambió justo antes: se reintenta
+      if (r.status === 401 || r.status === 403 || r.status === 404) {
+        throw new Error("El token no tiene permiso para guardar. Revisa que tenga Contents: Read and write sobre este repositorio.");
+      }
+      if (!r.ok) throw new Error("GitHub respondió con el error " + r.status + ".");
+      ajustesRemotos = nuevo;
+      return nuevo;
+    }
+    throw new Error("No se pudo guardar porque el archivo cambió. Inténtalo de nuevo.");
+  }
+
+  async function ejecutar(ahora) {
+    var r = await gh("/actions/workflows/publicar.yml/dispatches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ref: "main", inputs: { ahora: ahora ? "true" : "false" } })
+    });
+    return r.status === 204;
+  }
+
+  /* ------------------------------------------------------------------ estado */
+  var datos = null, listaVideos = [], ajustesRemotos = null, hayDatos = false;
+  var objetivo = null, anterior = null;
+
+  async function pedirJson(ruta) {
+    try {
+      var r = await fetch(ruta + "?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (e) { return null; }
+  }
+
+  async function cargar() {
+    datos = await pedirJson("proximo.json");
+    var v = await pedirJson("videos.json");
+    listaVideos = v && Array.isArray(v.videos) ? v.videos : [];
+    pintarPanel();
+    if (!$("vista-videos").hidden) pintarVideos();
+  }
+
+  async function cargarAjustesRemotos() {
+    try { ajustesRemotos = (await leerAjustesRemotos()).datos; } catch (e) { /* se usan los del panel */ }
+    return ajustesRemotos;
+  }
+
+  /* ------------------------------------------------------------------ vistas */
+  var VISTAS = ["panel", "videos", "ajustes"];
+  function mostrarVista(nombre) {
+    if (VISTAS.indexOf(nombre) < 0) nombre = "panel";
+    VISTAS.forEach(function (v) {
+      $("vista-" + v).hidden = v !== nombre;
+      $("tab-" + v).setAttribute("aria-selected", v === nombre ? "true" : "false");
+    });
+    try { history.replaceState(null, "", "#" + nombre); } catch (e) {}
+    if (nombre === "videos") { cargarAjustesRemotos().then(pintarVideos); pintarVideos(); }
+    if (nombre === "ajustes") prepararAjustes(false);
+    window.scrollTo(0, 0);
+  }
+  VISTAS.forEach(function (v) { $("tab-" + v).addEventListener("click", function () { mostrarVista(v); }); });
+
+  /* ------------------------------------------------------------------ panel */
+  function pintarPanel() {
+    var siguiente = datos && datos.siguiente;
     var tieneDatos = !!(datos && (datos.proximo_horario || datos.siguiente || datos.ultimo));
     hayDatos = tieneDatos;
     objetivo = datos && datos.proximo_horario ? new Date(datos.proximo_horario) : null;
     anterior = datos && datos.anterior_horario ? new Date(datos.anterior_horario) : null;
 
-    var siguiente = datos && datos.siguiente;
     var imagen = $("portada");
     if (siguiente && datos.portada) {
       if (imagen.getAttribute("src") !== datos.portada) imagen.src = datos.portada;
@@ -387,26 +706,40 @@
       $("fotograma").classList.remove("con-imagen");
     }
 
-    var nombre = $("nombre");
-    var caja = $("cajaCaption");
+    var nombre = $("nombre"), caja = $("cajaCaption"), etiquetas = $("etiquetas");
     if (siguiente) {
       nombre.textContent = siguiente.nombre;
       nombre.hidden = false;
+      var marcas = [];
+      if (siguiente.elegido) marcas.push("Elegido por ti");
+      if (siguiente.propia) marcas.push("Con descripción propia");
+      etiquetas.textContent = marcas.join(". ");
+      etiquetas.hidden = marcas.length === 0;
       if (siguiente.caption) {
         $("caption").textContent = siguiente.caption;
         caja.hidden = false;
+        $("copiar").hidden = false;
       } else {
         caja.hidden = true;
+        $("copiar").hidden = true;
       }
+      $("btnAhora").hidden = false;
     } else {
       nombre.hidden = !tieneDatos;
       nombre.textContent = tieneDatos ? "No quedan videos en la fila" : "";
+      etiquetas.hidden = true;
       caja.hidden = true;
+      $("copiar").hidden = true;
+      $("btnAhora").hidden = true;
     }
+
+    $("pausa").hidden = !(datos && datos.pausado);
 
     var cuando = $("cuando");
     if (!tieneDatos) {
       cuando.textContent = "Cuando el publicador se ejecute por primera vez, aquí verás el siguiente video.";
+    } else if (datos.pausado) {
+      cuando.textContent = "Cuando la reanudes, saldrá en el siguiente horario.";
     } else if (objetivo) {
       cuando.textContent = "Sale el " + formatoFecha(objetivo, datos.zona);
     } else {
@@ -426,20 +759,21 @@
       s.textContent = linea;
       $("pie").appendChild(s);
     });
-
     tic();
   }
 
   function tic() {
     var anillo = $("anillo");
-    if (!objetivo) {
-      $("titulo").textContent = hayDatos ? "Sin publicaciones a la vista" : "Todavía no hay datos";
+    function vacio(titulo) {
+      $("titulo").textContent = titulo;
       $("hh").textContent = $("mm").textContent = $("ss").textContent = "--";
       $("dias").textContent = "";
       anillo.style.strokeDashoffset = CIRCUNFERENCIA;
-      document.title = "Próximo Reel";
-      return;
+      document.title = "Publicador";
     }
+    if (datos && datos.pausado) return vacio("Publicaciones en pausa");
+    if (!objetivo) return vacio(hayDatos ? "Sin publicaciones a la vista" : "Todavía no hay datos");
+
     var restante = Math.floor((objetivo.getTime() - Date.now()) / 1000);
     if (restante <= 0) {
       $("titulo").textContent = "Publicando ahora";
@@ -449,10 +783,8 @@
       document.title = "Publicando ahora";
       return;
     }
-    var d = Math.floor(restante / 86400);
-    var h = Math.floor((restante % 86400) / 3600);
-    var m = Math.floor((restante % 3600) / 60);
-    var s = restante % 60;
+    var d = Math.floor(restante / 86400), h = Math.floor((restante % 86400) / 3600),
+        m = Math.floor((restante % 3600) / 60), s = restante % 60;
     $("titulo").textContent = "Próxima publicación en";
     $("dias").textContent = d > 0 ? plural(d, "día", "días") : "";
     $("hh").textContent = dos(h);
@@ -462,18 +794,16 @@
 
     var avance = 0;
     if (anterior && objetivo > anterior) {
-      avance = (Date.now() - anterior.getTime()) / (objetivo.getTime() - anterior.getTime());
-      avance = Math.min(1, Math.max(0, avance));
+      avance = Math.min(1, Math.max(0, (Date.now() - anterior.getTime()) / (objetivo.getTime() - anterior.getTime())));
     }
     anillo.style.strokeDashoffset = CIRCUNFERENCIA * (1 - avance);
   }
 
   $("copiar").addEventListener("click", function () {
-    var boton = this;
-    var texto = $("caption").textContent;
+    var boton = this, texto = $("caption").textContent;
     function listo() {
-      boton.textContent = "Caption copiado";
-      setTimeout(function () { boton.textContent = "Copiar caption"; }, 2200);
+      boton.textContent = "Descripción copiada";
+      setTimeout(function () { boton.textContent = "Copiar descripción"; }, 2200);
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(texto).then(listo, function () { boton.textContent = "No se pudo copiar"; });
@@ -487,7 +817,276 @@
     }
   });
 
+  /* "Publicar ahora" */
+  $("btnAhora").addEventListener("click", function () {
+    var nombre = datos && datos.siguiente ? datos.siguiente.nombre : "el siguiente video";
+    $("dlgAhoraTexto").textContent = "Se publicará «" + nombre + "» en Instagram dentro de unos minutos. Esto no se puede deshacer desde aquí.";
+    $("dlgAhoraMsg").hidden = true;
+    $("dlgAhora").showModal();
+  });
+  $("btnCancelarAhora").addEventListener("click", function () { $("dlgAhora").close(); });
+  $("btnConfirmarAhora").addEventListener("click", async function () {
+    var msg = $("dlgAhoraMsg");
+    msg.hidden = true;
+    if (!leerToken()) {
+      msg.textContent = "Primero conecta GitHub en la sección Ajustes.";
+      msg.hidden = false;
+      return;
+    }
+    this.disabled = true;
+    try {
+      var ok = await ejecutar(true);
+      if (!ok) throw new Error("GitHub no aceptó la orden. Revisa que el token tenga el permiso Actions: Read and write.");
+      $("dlgAhora").close();
+      aviso("Listo. En unos minutos el Reel aparecerá en Instagram.");
+    } catch (e) {
+      msg.textContent = e.message;
+      msg.hidden = false;
+    } finally {
+      this.disabled = false;
+    }
+  });
+
+  /* ------------------------------------------------------------------ videos */
+  function sinTildes(t) { return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+
+  function pintarVideos() {
+    var texto = sinTildes($("buscar").value.trim());
+    var idSiguiente = datos && datos.siguiente ? datos.siguiente.id : "";
+    var propias = (ajustesRemotos && ajustesRemotos.descripciones) || {};
+    var filtrados = listaVideos.filter(function (v) { return !texto || sinTildes(v.nombre).indexOf(texto) >= 0; });
+
+    $("videosResumen").textContent = listaVideos.length
+      ? (listaVideos.length === 1 ? "Queda 1 video por publicar." : "Quedan " + listaVideos.length + " videos por publicar.") + " Toca uno para elegirlo o ponerle su propia descripción."
+      : "Cuando el publicador se ejecute, aquí aparecerá la lista de videos.";
+
+    var ul = $("lista");
+    ul.innerHTML = "";
+    filtrados.forEach(function (v) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "item";
+      b.dataset.id = v.id;
+      var n = document.createElement("span");
+      n.className = "item-nombre";
+      n.textContent = v.nombre;
+      b.appendChild(n);
+      if (v.id === idSiguiente) {
+        var e = document.createElement("span");
+        e.className = "item-etiqueta";
+        e.textContent = "Sigue";
+        b.appendChild(e);
+      } else if (propias[v.id]) {
+        var e2 = document.createElement("span");
+        e2.className = "item-etiqueta suave";
+        e2.textContent = "Descripción propia";
+        b.appendChild(e2);
+      }
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+
+    var vacia = $("listaVacia");
+    if (listaVideos.length && !filtrados.length) {
+      vacia.textContent = "Ningún video coincide con la búsqueda.";
+      vacia.hidden = false;
+    } else {
+      vacia.hidden = true;
+    }
+  }
+  $("buscar").addEventListener("input", pintarVideos);
+  $("lista").addEventListener("click", function (ev) {
+    var b = ev.target.closest(".item");
+    if (b) abrirVideo(b.dataset.id);
+  });
+
+  var videoAbierto = null;
+  function abrirVideo(id) {
+    var v = listaVideos.filter(function (x) { return x.id === id; })[0];
+    if (!v) return;
+    videoAbierto = v;
+    var propias = (ajustesRemotos && ajustesRemotos.descripciones) || {};
+    $("dlgVideoTitulo").textContent = v.nombre;
+    $("descVideo").value = propias[id] || "";
+    $("dlgVideoMsg").hidden = true;
+    var elegido = (ajustesRemotos && ajustesRemotos.forzar_siguiente === id) || (datos && datos.siguiente && datos.siguiente.id === id && datos.siguiente.elegido);
+    $("btnQuitarEleccion").hidden = !elegido;
+    $("dlgVideo").showModal();
+  }
+  $("btnCerrarVideo").addEventListener("click", function () { $("dlgVideo").close(); });
+
+  function ponerDescripcionPropia(a, id, texto) {
+    a.descripciones = a.descripciones || {};
+    if (texto.trim()) a.descripciones[id] = texto.trim(); else delete a.descripciones[id];
+  }
+
+  async function cambiarDesdeVideo(mutar, textoExito) {
+    var msg = $("dlgVideoMsg");
+    msg.hidden = true;
+    var botones = ["btnElegir", "btnSoloDesc", "btnQuitarEleccion"].map($);
+    botones.forEach(function (b) { b.disabled = true; });
+    try {
+      await guardarAjustesRemotos(mutar);
+      var lanzado = false;
+      try { lanzado = await ejecutar(false); } catch (e) {}
+      $("dlgVideo").close();
+      aviso(textoExito + (lanzado ? " El panel se actualiza en 1 o 2 minutos." : " Se aplicará en la próxima ejecución."));
+      pintarVideos();
+    } catch (e) {
+      msg.textContent = e.message;
+      msg.hidden = false;
+    } finally {
+      botones.forEach(function (b) { b.disabled = false; });
+    }
+  }
+  $("btnElegir").addEventListener("click", function () {
+    if (!videoAbierto) return;
+    var id = videoAbierto.id, texto = $("descVideo").value;
+    cambiarDesdeVideo(function (a) { a.forzar_siguiente = id; ponerDescripcionPropia(a, id, texto); return a; },
+      "Guardado. «" + videoAbierto.nombre + "» saldrá en la próxima publicación.");
+  });
+  $("btnSoloDesc").addEventListener("click", function () {
+    if (!videoAbierto) return;
+    var id = videoAbierto.id, texto = $("descVideo").value;
+    cambiarDesdeVideo(function (a) { ponerDescripcionPropia(a, id, texto); return a; }, "Descripción guardada.");
+  });
+  $("btnQuitarEleccion").addEventListener("click", function () {
+    cambiarDesdeVideo(function (a) { a.forzar_siguiente = ""; return a; }, "Listo. Vuelve el orden normal.");
+  });
+
+  /* ------------------------------------------------------------------ ajustes */
+  var horasUI = [], ajustesListos = false;
+
+  function pintarHoras() {
+    var cont = $("horas");
+    cont.innerHTML = "";
+    horasUI.forEach(function (h, i) {
+      var fila = document.createElement("div");
+      fila.className = "fila-hora";
+      var inp = document.createElement("input");
+      inp.type = "time";
+      inp.value = h;
+      inp.setAttribute("aria-label", "Horario " + (i + 1));
+      inp.addEventListener("change", function () { horasUI[i] = inp.value; });
+      var quitar = document.createElement("button");
+      quitar.type = "button";
+      quitar.className = "boton texto";
+      quitar.textContent = "Quitar";
+      quitar.setAttribute("aria-label", "Quitar el horario " + (i + 1));
+      quitar.addEventListener("click", function () { horasUI.splice(i, 1); pintarHoras(); });
+      fila.appendChild(inp);
+      fila.appendChild(quitar);
+      cont.appendChild(fila);
+    });
+  }
+  $("btnAgregarHora").addEventListener("click", function () {
+    horasUI.push("12:00");
+    pintarHoras();
+    var inputs = $("horas").querySelectorAll("input");
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+
+  function actualizarContador() {
+    var t = $("descripcion").value;
+    var etiquetas = (t.match(/#[\p{L}\p{N}_]+/gu) || []).length;
+    $("contador").textContent = t.length + " de 2200 caracteres. " + (etiquetas === 1 ? "1 hashtag" : etiquetas + " hashtags") +
+      (etiquetas > 30 ? ". Instagram acepta hasta 30." : ".");
+  }
+  $("descripcion").addEventListener("input", actualizarContador);
+
+  async function prepararAjustes(forzar) {
+    pintarEstadoToken();
+    $("zonaTxt").textContent = datos && datos.zona ? "Zona horaria: " + datos.zona + "." : "Se usa la zona horaria configurada en el publicador.";
+    if (ajustesListos && !forzar) return;
+    if (!ajustesRemotos) await cargarAjustesRemotos();
+    var base = (datos && datos.ajustes) || {};
+    var r = ajustesRemotos || {};
+    horasUI = (Array.isArray(r.horarios) && r.horarios.length ? r.horarios : (base.horarios || [])).slice();
+    $("descripcion").value = typeof r.descripcion === "string" && r.descripcion.trim() ? r.descripcion : (base.descripcion || "");
+    var orden = r.orden === "aleatorio" || r.orden === "alfabetico" ? r.orden : (base.orden || "alfabetico");
+    Array.prototype.forEach.call(document.getElementsByName("orden"), function (o) { o.checked = o.value === orden; });
+    $("pausado").checked = typeof r.pausado === "boolean" ? r.pausado : !!base.pausado;
+    pintarHoras();
+    actualizarContador();
+    ajustesListos = true;
+  }
+
+  $("btnGuardar").addEventListener("click", async function () {
+    var boton = this;
+    var horas = horasUI.filter(function (h) { return /^\d{2}:\d{2}$/.test(h); });
+    horas = horas.filter(function (h, i) { return horas.indexOf(h) === i; }).sort();
+    var descripcion = $("descripcion").value.trim();
+    var orden = (Array.prototype.filter.call(document.getElementsByName("orden"), function (o) { return o.checked; })[0] || {}).value || "alfabetico";
+    var pausado = $("pausado").checked;
+
+    if (!horas.length) return aviso("Agrega al menos un horario.", true);
+    if (!descripcion) return aviso("Escribe una descripción.", true);
+    if (descripcion.length > 2200) return aviso("La descripción pasa de 2200 caracteres.", true);
+
+    boton.disabled = true;
+    boton.textContent = "Guardando…";
+    try {
+      await guardarAjustesRemotos(function (a) {
+        a.horarios = horas;
+        a.descripcion = descripcion;
+        a.orden = orden;
+        a.pausado = pausado;
+        return a;
+      });
+      horasUI = horas.slice();
+      pintarHoras();
+      var lanzado = false;
+      try { lanzado = await ejecutar(false); } catch (e) {}
+      aviso("Guardado." + (lanzado ? " El panel se actualiza en 1 o 2 minutos." : " Se aplicará en la próxima ejecución, en menos de una hora."));
+    } catch (e) {
+      aviso(e.message, true);
+    } finally {
+      boton.disabled = false;
+      boton.textContent = "Guardar cambios";
+    }
+  });
+
+  /* token */
+  function pintarEstadoToken() {
+    var conectado = !!leerToken();
+    var estado = $("estadoToken");
+    estado.textContent = conectado ? "Conectado a GitHub en este dispositivo." : "Sin conectar. Puedes ver todo, pero no guardar cambios.";
+    estado.className = "estado-token" + (conectado ? " ok" : "");
+    $("filaToken").hidden = conectado;
+    $("btnQuitarToken").hidden = !conectado;
+  }
+  $("btnConectar").addEventListener("click", async function () {
+    var valor = $("token").value.trim();
+    if (!valor) return aviso("Pega primero tu token.", true);
+    var boton = this;
+    boton.disabled = true;
+    guardarToken(valor);
+    try {
+      var r = await gh("");
+      if (r.status === 401) throw new Error("GitHub no reconoce ese token. Revisa que lo hayas copiado completo.");
+      if (r.status === 404) throw new Error("Ese token no ve el repositorio. Al crearlo, elige solo ese repositorio.");
+      if (!r.ok) throw new Error("GitHub respondió con el error " + r.status + ".");
+      $("token").value = "";
+      aviso("Conectado.");
+    } catch (e) {
+      guardarToken("");
+      aviso(e.message, true);
+    } finally {
+      boton.disabled = false;
+      pintarEstadoToken();
+    }
+  });
+  $("btnQuitarToken").addEventListener("click", function () {
+    guardarToken("");
+    pintarEstadoToken();
+    aviso("Token quitado de este dispositivo.");
+  });
+
+  /* ------------------------------------------------------------------ arranque */
+  mostrarVista((location.hash || "").replace("#", "") || "panel");
   cargar();
+  cargarAjustesRemotos();
   setInterval(tic, 1000);
   setInterval(cargar, 120000);
 

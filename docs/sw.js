@@ -1,6 +1,6 @@
 // Guarda la página para que abra rápido y funcione aunque no haya internet.
 // Los datos (proximo.json) y la portada siempre se piden primero a internet.
-const CACHE = "publicador-v1";
+const CACHE = "publicador-v2";
 const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -20,7 +20,7 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
 
-  const datos = url.pathname.endsWith("proximo.json") || url.pathname.endsWith("portada.jpg") || e.request.mode === "navigate";
+  const datos = url.pathname.endsWith("proximo.json") || url.pathname.endsWith("videos.json") || url.pathname.endsWith("portada.jpg") || e.request.mode === "navigate";
   if (datos) {
     e.respondWith(
       fetch(e.request)

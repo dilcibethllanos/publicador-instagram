@@ -2,7 +2,8 @@
 Versión para la nube (GitHub Actions): publica Reels sin necesitar tu PC.
 
 Cada vez que GitHub la ejecuta (una vez por hora):
-1. Mira si toca alguno de los horarios de configuracion.ini.
+1. Mira si toca alguno de los horarios (los de ajustes.json, que edita la app/página,
+   o, si no hay, los de configuracion.ini).
 2. Si toca, elige el siguiente video pendiente de tu carpeta de Google Drive.
 3. Lo descarga, lo deja en un formato válido para Instagram y lo publica
    (pasando por Cloudinary, igual que en tu PC).
@@ -33,6 +34,29 @@ VARIABLES = (
 )
 LIMITE_MB = 100  # límite de Cloudinary en el plan gratuito
 PANEL = p.BASE / "docs"  # carpeta que publica GitHub Pages
+AJUSTES = p.BASE / "ajustes.json"  # lo edita la página/app; si algo falta se usa configuracion.ini
+ORDENES = ("alfabetico", "aleatorio")
+
+
+def cargar_ajustes():
+    if not AJUSTES.exists():
+        return {}
+    try:
+        datos = json.loads(AJUSTES.read_text(encoding="utf-8-sig"))
+        return datos if isinstance(datos, dict) else {}
+    except ValueError:
+        p.log("ajustes.json tiene un formato inválido; se ignora.")
+        return {}
+
+
+def horas_validas(lista):
+    horas = set()
+    for h in lista or []:
+        try:
+            horas.add(datetime.strptime(str(h).strip(), "%H:%M").strftime("%H:%M"))
+        except ValueError:
+            p.log(f"Horario inválido en ajustes.json: {h}")
+    return sorted(horas)
 
 
 # ------------------------------------------------------------ Google Drive
@@ -81,11 +105,13 @@ def listar_videos(servicio, carpeta_id):
     return videos
 
 
-def elegir_video(videos, estado, orden):
-    """Devuelve el video que toca. Si ya hay uno fijado como 'siguiente', se respeta."""
+def elegir_video(videos, estado, orden, forzado=""):
+    """Devuelve el video que toca: el elegido a mano, si hay; si no, el ya fijado como 'siguiente'; si no, por orden."""
     pendientes = {v["id"]: v for v in videos if v["id"] not in estado["publicados"]}
     if not pendientes:
         return None
+    if forzado in pendientes:
+        return pendientes[forzado]
     fijado = (estado.get("siguiente") or {}).get("id")
     if fijado in pendientes:
         return pendientes[fijado]
@@ -94,10 +120,19 @@ def elegir_video(videos, estado, orden):
     return sorted(pendientes.values(), key=lambda v: v["name"].lower())[0]
 
 
-def fijar_siguiente(videos, estado, orden):
+def fijar_siguiente(videos, estado, orden, forzado=""):
     """Decide cuál será el próximo video y lo anota, para que el panel y la publicación coincidan."""
-    elegido = elegir_video(videos, estado, orden)
-    estado["siguiente"] = {"id": elegido["id"], "nombre": elegido["name"]} if elegido else {}
+    if (estado.get("siguiente") or {}).get("forzado") and not forzado:
+        estado["siguiente"] = {}  # quitaron su elección a mano: se vuelve al orden normal
+    elegido = elegir_video(videos, estado, orden, forzado)
+    if elegido:
+        estado["siguiente"] = {
+            "id": elegido["id"],
+            "nombre": elegido["name"],
+            "forzado": bool(forzado and elegido["id"] == forzado),
+        }
+    else:
+        estado["siguiente"] = {}
     return elegido
 
 
@@ -134,26 +169,52 @@ def cumple_requisitos(ruta):
     return all(a.get("codec_name") == "aac" for a in audio)
 
 
-def preparar_video(origen, destino):
-    """Deja el video listo para Instagram: si ya cumple solo reordena el archivo, si no lo convierte."""
-    if cumple_requisitos(origen):
-        comando = ["ffmpeg", "-y", "-i", str(origen), "-c", "copy", "-movflags", "+faststart", str(destino)]
-    else:
-        p.log("El video no cumple el formato de Instagram; convirtiendo...")
-        comando = [
-            "ffmpeg", "-y", "-i", str(origen),
-            "-vf", "scale='min(1920,iw)':-2",
-            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
-            "-b:v", "4M", "-maxrate", "6M", "-bufsize", "8M",
-            "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "128k",
-            "-movflags", "+faststart", str(destino),
-        ]
+def duracion(ruta):
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", str(ruta)],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except ValueError:
+        return 0.0
+
+
+def ejecutar_ffmpeg(comando):
     r = subprocess.run(comando, capture_output=True, text=True)
     if r.returncode != 0:
         raise RuntimeError(f"ffmpeg falló: {r.stderr[-500:]}")
+
+
+def convertir(origen, destino, video_kbps=4000):
+    ejecutar_ffmpeg([
+        "ffmpeg", "-y", "-i", str(origen),
+        "-vf", "scale='min(1920,iw)':-2",
+        "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+        "-b:v", f"{video_kbps}k", "-maxrate", f"{int(video_kbps * 1.5)}k", "-bufsize", f"{video_kbps * 2}k",
+        "-c:a", "aac", "-ar", "48000", "-ac", "2", "-b:a", "128k",
+        "-movflags", "+faststart", str(destino),
+    ])
+
+
+def preparar_video(origen, destino):
+    """Deja el video listo para Instagram y con un peso que Cloudinary acepte (menos de LIMITE_MB)."""
+    if cumple_requisitos(origen):
+        ejecutar_ffmpeg(["ffmpeg", "-y", "-i", str(origen), "-c", "copy", "-movflags", "+faststart", str(destino)])
+    else:
+        p.log("El video no cumple el formato de Instagram; convirtiendo...")
+        convertir(origen, destino)
+
+    if destino.stat().st_size / 1_000_000 > LIMITE_MB:
+        segundos = duracion(origen) or 60.0
+        kbps = int(LIMITE_MB * 0.85 * 8000 / segundos) - 128  # apunta al 85 % del límite
+        kbps = max(kbps, 500)
+        p.log(f"El video pesa más de {LIMITE_MB} MB; comprimiendo a unos {kbps} kbps...")
+        convertir(origen, destino, kbps)
+
     peso = destino.stat().st_size / 1_000_000
     if peso > LIMITE_MB:
-        raise RuntimeError(f"El video pesa {peso:.0f} MB y el límite de Cloudinary gratis es {LIMITE_MB} MB.")
+        raise RuntimeError(f"El video sigue pesando {peso:.0f} MB tras comprimirlo (límite {LIMITE_MB} MB).")
 
 
 # ---------------------------------------------------------------- panel web
@@ -191,12 +252,27 @@ def generar_portada(servicio, video, destino):
     raise RuntimeError("ffmpeg no pudo sacar un fotograma del video")
 
 
-def actualizar_panel(servicio, videos, estado, caption, horarios):
-    """Escribe docs/proximo.json (y docs/portada.jpg) con lo que muestra la página."""
+def escribir_json_si_cambia(ruta, datos, ahora):
+    """Reescribe el archivo solo si cambió algo, para no llenar el historial de commits."""
+    previo = {}
+    if ruta.exists():
+        try:
+            previo = json.loads(ruta.read_text(encoding="utf-8"))
+        except ValueError:
+            previo = {}
+    previo.pop("actualizado", None)
+    if datos != previo:
+        datos = dict(datos, actualizado=ahora.astimezone().isoformat(timespec="seconds"))
+        ruta.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def actualizar_panel(servicio, videos, estado, ctx):
+    """Escribe docs/proximo.json, docs/videos.json y docs/portada.jpg, que usan la página y la app."""
     try:
         PANEL.mkdir(exist_ok=True)
         portada = PANEL / "portada.jpg"
-        siguiente = next((v for v in videos if v["id"] == (estado.get("siguiente") or {}).get("id")), None)
+        id_siguiente = (estado.get("siguiente") or {}).get("id")
+        siguiente = next((v for v in videos if v["id"] == id_siguiente), None)
 
         if siguiente and (estado.get("portada_de") != siguiente["id"] or not portada.exists()):
             try:
@@ -206,29 +282,36 @@ def actualizar_panel(servicio, videos, estado, caption, horarios):
                 p.log(f"No pude crear la portada: {e}")
 
         ahora = datetime.now()
+        horarios = ctx["horarios"]
         proximo, anterior = proximo_y_anterior(horarios, estado, ahora) if horarios else (None, None)
         tiene_portada = bool(siguiente) and estado.get("portada_de") == siguiente["id"] and portada.exists()
+        pendientes = sorted((v for v in videos if v["id"] not in estado["publicados"]), key=lambda v: v["name"].lower())
+
         datos = {
             "zona": os.environ.get("TZ", ""),
             "proximo_horario": proximo.astimezone().isoformat(timespec="seconds") if proximo else None,
             "anterior_horario": anterior.astimezone().isoformat(timespec="seconds") if anterior else None,
-            "siguiente": {"nombre": Path(siguiente["name"]).stem, "caption": caption} if siguiente else None,
+            "pausado": ctx["pausado"],
+            "siguiente": {
+                "id": siguiente["id"],
+                "nombre": Path(siguiente["name"]).stem,
+                "caption": ctx["descripciones"].get(siguiente["id"]) or ctx["descripcion"],
+                "propia": siguiente["id"] in ctx["descripciones"],
+                "elegido": bool((estado.get("siguiente") or {}).get("forzado")),
+            } if siguiente else None,
             "portada": f"portada.jpg?v={estado['portada_de']}" if tiene_portada else None,
-            "pendientes": len([v for v in videos if v["id"] not in estado["publicados"]]),
+            "pendientes": len(pendientes),
             "ultimo": estado.get("ultimo"),
+            "ajustes": {
+                "horarios": horarios,
+                "descripcion": ctx["descripcion"],
+                "orden": ctx["orden"],
+                "pausado": ctx["pausado"],
+            },
         }
-
-        ruta = PANEL / "proximo.json"
-        previo = {}
-        if ruta.exists():
-            try:
-                previo = json.loads(ruta.read_text(encoding="utf-8"))
-            except ValueError:
-                previo = {}
-        previo.pop("actualizado", None)
-        if datos != previo:  # solo se reescribe si cambió algo, para no llenar el historial de commits
-            datos["actualizado"] = ahora.astimezone().isoformat(timespec="seconds")
-            ruta.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")
+        escribir_json_si_cambia(PANEL / "proximo.json", datos, ahora)
+        lista = {"videos": [{"id": v["id"], "nombre": Path(v["name"]).stem} for v in pendientes]}
+        escribir_json_si_cambia(PANEL / "videos.json", lista, ahora)
     except Exception as e:  # el panel nunca debe impedir una publicación
         p.log(f"No pude actualizar el panel: {e}")
 
@@ -244,14 +327,27 @@ def main():
     if not (os.environ.get("GOOGLE_CREDENTIALS_JSON") or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")):
         sys.exit("No hay conexión con Google: faltan los secretos WIF_PROVIDER y WIF_SERVICE_ACCOUNT (o GOOGLE_CREDENTIALS_JSON).")
 
-    horarios, orden, _alternar, carpetas = p.leer_config()
+    # Ajustes: lo que se editó desde la página/app (ajustes.json) manda; lo que falte sale de configuracion.ini
+    horarios_ini, orden_ini, _alternar, carpetas = p.leer_config()
+    ajustes = cargar_ajustes()
+    horarios = horas_validas(ajustes.get("horarios")) or horarios_ini
+    orden = ajustes.get("orden") if ajustes.get("orden") in ORDENES else orden_ini
+    descripcion = str(ajustes.get("descripcion") or "").strip() or next(iter(carpetas.values()))
+    descripciones = {
+        str(k): v.strip() for k, v in (ajustes.get("descripciones") or {}).items()
+        if isinstance(v, str) and v.strip()
+    }
+    pausado = bool(ajustes.get("pausado"))
+    elegido_a_mano = str(ajustes.get("forzar_siguiente") or "")
+    ctx = {"horarios": horarios, "orden": orden, "descripcion": descripcion,
+           "descripciones": descripciones, "pausado": pausado}
+
     estado = p.cargar_estado()
     estado.setdefault("nombres", {})
     ahora = datetime.now()
-    caption = next(iter(carpetas.values()))
 
     clave_horario = None
-    if not (simular or forzar):
+    if not (simular or forzar) and not pausado:
         if not horarios:
             sys.exit("Pon al menos un horario en configuracion.ini (sección [publicacion]).")
         clave_horario = p.horario_pendiente(horarios, estado, ahora)
@@ -260,14 +356,14 @@ def main():
     videos = listar_videos(servicio, os.environ["DRIVE_FOLDER_ID"])
 
     if clave_horario is None and not (simular or forzar):
-        # No toca publicar: solo se deja el panel al día
-        fijar_siguiente(videos, estado, orden)
-        actualizar_panel(servicio, videos, estado, caption, horarios)
+        # No toca publicar (o está en pausa): solo se deja el panel al día
+        fijar_siguiente(videos, estado, orden, elegido_a_mano)
+        actualizar_panel(servicio, videos, estado, ctx)
         p.guardar_estado(estado)
-        print(f"{ahora:%Y-%m-%d %H:%M} - Todavía no toca publicar.")
+        print(f"{ahora:%Y-%m-%d %H:%M} - " + ("Publicación en pausa." if pausado else "Todavía no toca publicar."))
         return
 
-    elegido = elegir_video(videos, estado, orden)
+    elegido = elegir_video(videos, estado, orden, elegido_a_mano)
     if elegido is None:
         p.log("No quedan videos pendientes en la carpeta de Drive.")
         if simular:
@@ -275,12 +371,13 @@ def main():
         if clave_horario:
             estado["horarios_hechos"].append(clave_horario)
         estado["siguiente"] = {}
-        actualizar_panel(servicio, videos, estado, caption, horarios)
+        actualizar_panel(servicio, videos, estado, ctx)
         p.guardar_estado(estado)
         return
 
+    caption = descripciones.get(elegido["id"]) or descripcion
     if simular:
-        print(f"Publicaría: {elegido['name']}  ({len(videos)} videos en Drive)\nCaption: {caption}")
+        print(f"Publicaría: {elegido['name']}  ({len(videos)} videos en Drive)\nDescripción: {caption}")
         return
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -305,8 +402,8 @@ def main():
         estado["horarios_hechos"].append(clave_horario)
 
     estado["siguiente"] = {}
-    fijar_siguiente(videos, estado, orden)  # ya con el video recién publicado descartado
-    actualizar_panel(servicio, videos, estado, caption, horarios)
+    fijar_siguiente(videos, estado, orden, elegido_a_mano)  # ya con el video recién publicado descartado
+    actualizar_panel(servicio, videos, estado, ctx)
     p.guardar_estado(estado)
     p.log(f"PUBLICADO {elegido['name']} (id {media_id})")
 

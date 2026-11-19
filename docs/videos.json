@@ -1,10 +1,6 @@
 {
   "videos": [
     {
-      "id": "1LuIMzP9Uwadq6Tq_sMjnZ0lt6IJ3Fo_o",
-      "nombre": "AD 437"
-    },
-    {
       "id": "1ga9mqun-jwNe4Nl0xvF4FIVqYq-Led6Z",
       "nombre": "AD 439"
     },
@@ -181,5 +177,5 @@
       "nombre": "AD418"
     }
   ],
-  "actualizado": "2026-11-18T21:57:17-06:00"
+  "actualizado": "2026-11-19T07:13:12-06:00"
 }

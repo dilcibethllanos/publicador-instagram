@@ -12,7 +12,8 @@
     "1s9X1Sk0Y5krq8RaPzLhfsljDY5XIzobk",
     "1DW6BTISSXmXHGrc5vm0DpuIzIZ9Zufay",
     "1V_EK32fZhkcq7xHnVjykiRr7H45Yy-2Z",
-    "1xNuc35c0vYXVNqhEobKZ6q0JPtuDIRs7"
+    "1xNuc35c0vYXVNqhEobKZ6q0JPtuDIRs7",
+    "1vfY9hZl_Mtp7bOKXsWxk5oIyBhhejwl5"
   ],
   "horarios_hechos": [
     "2026-11-16 18:00",
@@ -26,7 +27,8 @@
     "2026-11-19 18:00",
     "2026-11-19 21:30",
     "2026-11-20 06:00",
-    "2026-11-20 12:00"
+    "2026-11-20 12:00",
+    "2026-11-20 18:00"
   ],
   "ultima_carpeta": -1,
   "nombres": {
@@ -42,16 +44,17 @@
     "1s9X1Sk0Y5krq8RaPzLhfsljDY5XIzobk": "AD 441.mp4",
     "1DW6BTISSXmXHGrc5vm0DpuIzIZ9Zufay": "ad 5.mp4",
     "1V_EK32fZhkcq7xHnVjykiRr7H45Yy-2Z": "AD104.mp4",
-    "1xNuc35c0vYXVNqhEobKZ6q0JPtuDIRs7": "AD117.mp4"
+    "1xNuc35c0vYXVNqhEobKZ6q0JPtuDIRs7": "AD117.mp4",
+    "1vfY9hZl_Mtp7bOKXsWxk5oIyBhhejwl5": "AD118.mp4"
   },
   "siguiente": {
-    "id": "1vfY9hZl_Mtp7bOKXsWxk5oIyBhhejwl5",
-    "nombre": "AD118.mp4",
+    "id": "18QGqAJ9FUzBosf_137EqyDpLdwFMnehv",
+    "nombre": "AD120.mp4",
     "forzado": false
   },
-  "portada_de": "1vfY9hZl_Mtp7bOKXsWxk5oIyBhhejwl5",
+  "portada_de": "18QGqAJ9FUzBosf_137EqyDpLdwFMnehv",
   "ultimo": {
-    "nombre": "AD117",
-    "fecha": "2026-11-20T12:58:42-06:00"
+    "nombre": "AD118",
+    "fecha": "2026-11-20T19:06:17-06:00"
   }
 }

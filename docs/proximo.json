@@ -1,20 +1,20 @@
 {
   "zona": "America/Tegucigalpa",
-  "proximo_horario": "2026-11-22T12:00:00-06:00",
-  "anterior_horario": "2026-11-22T06:00:00-06:00",
+  "proximo_horario": "2026-11-22T18:00:00-06:00",
+  "anterior_horario": "2026-11-22T12:00:00-06:00",
   "pausado": false,
   "siguiente": {
-    "id": "1Dtm84xKjK68vnNTj3srtKufcocz16rV-",
-    "nombre": "AD128",
+    "id": "1oohsD4uqY9Ija5aH-PPwWFFR1sgDuo6m",
+    "nombre": "AD129",
     "caption": "Si quieres mas informacion comenta \"CLASE\"🚀 \n\n\n\n#franquiciaia #parati #negociosdigitales #emprendimientodigital",
     "propia": false,
     "elegido": false
   },
-  "portada": "portada.jpg?v=1Dtm84xKjK68vnNTj3srtKufcocz16rV-",
-  "pendientes": 32,
+  "portada": "portada.jpg?v=1oohsD4uqY9Ija5aH-PPwWFFR1sgDuo6m",
+  "pendientes": 31,
   "ultimo": {
-    "nombre": "AD127",
-    "fecha": "2026-11-22T06:52:55-06:00"
+    "nombre": "AD128",
+    "fecha": "2026-11-22T12:47:59-06:00"
   },
   "ajustes": {
     "horarios": [
@@ -27,5 +27,5 @@
     "orden": "alfabetico",
     "pausado": false
   },
-  "actualizado": "2026-11-22T06:52:59-06:00"
+  "actualizado": "2026-11-22T12:48:06-06:00"
 }
